@@ -38,6 +38,7 @@ function OrderDashboard({ orders }) {
                 <div>
                   <h4>{order.itemName}</h4>
                   <p>ID: #{order.id}</p>
+                  <p style={{fontSize: '12px', marginTop: '5px'}}><strong>Grade: {order.grade.toUpperCase()}</strong></p>
                 </div>
                 <div>
                   <p><strong>Customer:</strong> {order.customerName}</p>
