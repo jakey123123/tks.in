@@ -17,11 +17,14 @@ let items = [
   { id: 5, name: 'Cube Keychain', description: 'Geometric cube keychain', price: 9.99, image: '🎲', category: 'keychain' },
   { id: 6, name: 'Moon Keychain', description: 'Crescent moon keychain', price: 8.49, image: '🌙', category: 'keychain' },
   { id: 7, name: 'Flower Keychain', description: 'Pretty flower keychain', price: 7.49, image: '🌸', category: 'keychain' },
-  { id: 8, name: 'Lightning Keychain', description: 'Electric lightning bolt keychain', price: 8.99, image: '⚡', category: 'keychain' }
+  { id: 8, name: 'Lightning Keychain', description: 'Electric lightning bolt keychain', price: 8.99, image: '⚡', category: 'keychain' },
+  { id: 9, name: 'Brown Dog Keychain', description: 'Adorable brown dog keychain', price: 10.99, image: '🐕', category: 'keychain' },
+  { id: 10, name: 'Octopus Keychain', description: 'Blue octopus with googly eyes', price: 12.99, image: '🐙', category: 'keychain' },
+  { id: 11, name: 'Tire Keychain', description: 'Black rubber tire keychain', price: 9.49, image: '🛞', category: 'keychain' }
 ];
 
 let orders = [];
-let itemIdCounter = 9;
+let itemIdCounter = 12;
 let orderIdCounter = 1;
 
 // Routes
