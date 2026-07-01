@@ -1,158 +1,131 @@
 import React, { useState } from 'react';
+import './OrderForm.css';
 
-function OrderForm({ item, onOrder, onCancel }) {
+function OrderForm({ items, onPlaceOrder }) {
   const [formData, setFormData] = useState({
-    itemId: item.id,
+    itemId: '',
     quantity: 1,
-    grade: '7r',
     customerName: '',
     customerEmail: ''
   });
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'quantity' ? parseInt(value) : value
+      [name]: name === 'quantity' || name === 'itemId' ? parseInt(value) : value
     }));
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.customerName && formData.customerEmail) {
-      onOrder(formData);
+    if (name === 'itemId') {
+      const item = items.find(i => i.id === parseInt(value));
+      setSelectedItem(item);
     }
   };
 
-  const totalPrice = (item.price * formData.quantity).toFixed(2);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.itemId || !formData.quantity || !formData.customerName) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    await onPlaceOrder(formData);
+  };
+
+  const totalPrice = selectedItem ? selectedItem.price * formData.quantity : 0;
 
   return (
-    <div style={styles.modal}>
-      <div style={styles.modalContent}>
-        <h2>Order: {item.name}</h2>
-        <div style={styles.itemSummary}>
-          <p>Price per unit: <strong>${item.price.toFixed(2)}</strong></p>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div style={styles.formGroup}>
-            <label>Grade *</label>
+    <div className="order-form-container">
+      <div className="order-card">
+        <h2>Place an Order</h2>
+        <form onSubmit={handleSubmit} className="order-form">
+          <div className="form-group">
+            <label htmlFor="itemId">Select Item *</label>
             <select
-              name="grade"
-              value={formData.grade}
+              id="itemId"
+              name="itemId"
+              value={formData.itemId}
               onChange={handleChange}
               required
             >
-              <option value="7r">Grade 7R</option>
-              <option value="7p">Grade 7P</option>
-              <option value="8r">Grade 8R</option>
-              <option value="8p">Grade 8P</option>
+              <option value="">-- Choose an item --</option>
+              {items.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.name} - ${item.price.toFixed(2)}
+                </option>
+              ))}
             </select>
           </div>
-          <div style={styles.formGroup}>
-            <label>Quantity *</label>
+
+          {selectedItem && (
+            <div className="item-summary">
+              <h3>{selectedItem.name}</h3>
+              <p>{selectedItem.description}</p>
+              <p className="item-price">Price: ${selectedItem.price.toFixed(2)}</p>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="quantity">Quantity *</label>
             <input
               type="number"
+              id="quantity"
               name="quantity"
               value={formData.quantity}
               onChange={handleChange}
               min="1"
+              max="100"
               required
             />
           </div>
-          <div style={styles.formGroup}>
-            <label>Your Name *</label>
+
+          <div className="form-group">
+            <label htmlFor="customerName">Your Name *</label>
             <input
               type="text"
+              id="customerName"
               name="customerName"
               value={formData.customerName}
               onChange={handleChange}
-              required
               placeholder="John Doe"
+              required
             />
           </div>
-          <div style={styles.formGroup}>
-            <label>Email *</label>
+
+          <div className="form-group">
+            <label htmlFor="customerEmail">Email</label>
             <input
               type="email"
+              id="customerEmail"
               name="customerEmail"
               value={formData.customerEmail}
               onChange={handleChange}
-              required
               placeholder="john@example.com"
             />
           </div>
-          <div style={styles.totalSection}>
-            <h3>Total: ${totalPrice}</h3>
-          </div>
-          <div style={styles.buttonGroup}>
-            <button type="submit" style={styles.submitBtn}>Place Order</button>
-            <button type="button" onClick={onCancel} style={styles.cancelBtn}>Cancel</button>
-          </div>
+
+          {selectedItem && (
+            <div className="order-summary">
+              <div className="summary-row">
+                <span>Item Price:</span>
+                <span>${selectedItem.price.toFixed(2)}</span>
+              </div>
+              <div className="summary-row">
+                <span>Quantity:</span>
+                <span>{formData.quantity}</span>
+              </div>
+              <div className="summary-row total">
+                <span>Total:</span>
+                <span>${totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+
+          <button type="submit" className="submit-btn">Place Order</button>
         </form>
       </div>
     </div>
   );
 }
-
-const styles = {
-  modal: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1001
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '10px',
-    maxWidth: '400px',
-    width: '90%'
-  },
-  itemSummary: {
-    backgroundColor: '#f8f9fa',
-    padding: '10px',
-    borderRadius: '5px',
-    marginBottom: '15px'
-  },
-  formGroup: {
-    marginBottom: '15px'
-  },
-  totalSection: {
-    backgroundColor: '#e8f4f8',
-    padding: '15px',
-    borderRadius: '5px',
-    textAlign: 'center',
-    marginBottom: '15px'
-  },
-  buttonGroup: {
-    display: 'flex',
-    gap: '10px',
-    marginTop: '20px'
-  },
-  submitBtn: {
-    flex: 1,
-    padding: '10px',
-    backgroundColor: '#27ae60',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer'
-  },
-  cancelBtn: {
-    flex: 1,
-    padding: '10px',
-    backgroundColor: '#95a5a6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer'
-  }
-};
 
 export default OrderForm;

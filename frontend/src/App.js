@@ -1,147 +1,135 @@
 import React, { useState, useEffect } from 'react';
-import ItemsList from './components/ItemsList';
-import AddItem from './components/AddItem';
-import OrderForm from './components/OrderForm';
-import OrderDashboard from './components/OrderDashboard';
 import './App.css';
+import ItemList from './components/ItemList';
+import OrderForm from './components/OrderForm';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [items, setItems] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [showAddItem, setShowAddItem] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
   const [orders, setOrders] = useState([]);
-  const [showDashboard, setShowDashboard] = useState(false);
-  const API_URL = 'http://localhost:5000/api';
+  const [activeTab, setActiveTab] = useState('items');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+  // Fetch items on mount
   useEffect(() => {
     fetchItems();
     fetchOrders();
-    // Poll for new orders every 2 seconds
-    const interval = setInterval(fetchOrders, 2000);
-    return () => clearInterval(interval);
   }, []);
 
   const fetchItems = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`${API_URL}/items`);
-      setItems(await response.json());
-    } catch (error) {
-      console.error('Error fetching items:', error);
+      if (!response.ok) throw new Error('Failed to fetch items');
+      const data = await response.json();
+      setItems(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load items: ' + err.message);
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchOrders = async () => {
     try {
       const response = await fetch(`${API_URL}/orders`);
-      setOrders(await response.json());
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+      if (!response.ok) throw new Error('Failed to fetch orders');
+      const data = await response.json();
+      setOrders(data);
+    } catch (err) {
+      console.error('Failed to fetch orders:', err);
     }
   };
 
-  const handleAddItem = async (newItem) => {
+  const handleAddItem = async (itemData) => {
     try {
       const response = await fetch(`${API_URL}/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
+        body: JSON.stringify(itemData)
       });
-      await fetchItems();
-      setShowAddItem(false);
-    } catch (error) {
-      console.error('Error adding item:', error);
+      if (!response.ok) throw new Error('Failed to add item');
+      const newItem = await response.json();
+      setItems([...items, newItem]);
+      setError(null);
+    } catch (err) {
+      setError('Failed to add item: ' + err.message);
+      console.error(err);
     }
   };
 
-  const handleOrder = async (orderData) => {
+  const handlePlaceOrder = async (orderData) => {
     try {
       const response = await fetch(`${API_URL}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
       });
+      if (!response.ok) throw new Error('Failed to place order');
       const newOrder = await response.json();
       setOrders([...orders, newOrder]);
-      setShowOrderForm(false);
-      alert('Order placed successfully!');
-    } catch (error) {
-      console.error('Error creating order:', error);
+      setError(null);
+      alert('Order placed successfully! Order ID: ' + newOrder.id);
+    } catch (err) {
+      setError('Failed to place order: ' + err.message);
+      console.error(err);
     }
   };
 
   return (
     <div className="App">
       <header className="header">
-        <h1>🎨 3D Print Shop</h1>
-        <div className="header-buttons">
-          <button 
-            className="btn btn-primary"
-            onClick={() => setShowDashboard(!showDashboard)}
-          >
-            {showDashboard ? 'Shop' : '📊 Dashboard'}
-          </button>
-          <button 
-            className="btn btn-primary"
-            onClick={() => setShowAddItem(!showAddItem)}
-          >
-            {showAddItem ? 'Close' : '+ Add Item'}
-          </button>
-        </div>
+        <h1>🖨️ 3D Print Shop</h1>
+        <p>Quality 3D printed items</p>
       </header>
 
-      {showAddItem && (
-        <AddItem onAdd={handleAddItem} onCancel={() => setShowAddItem(false)} />
-      )}
+      {error && <div className="error-message">{error}</div>}
 
-      <main className="main-content">
-        {showDashboard ? (
-          <OrderDashboard orders={orders} />
-        ) : (
-          <div className="container">
-            <div className="items-section">
-              <h2>Available Items</h2>
-              <ItemsList 
-                items={items}
-                onSelectItem={(item) => {
-                  setSelectedItem(item);
-                  setShowOrderForm(true);
-                }}
-              />
-            </div>
+      <nav className="nav-tabs">
+        <button
+          className={`tab ${activeTab === 'items' ? 'active' : ''}`}
+          onClick={() => setActiveTab('items')}
+        >
+          Items
+        </button>
+        <button
+          className={`tab ${activeTab === 'order' ? 'active' : ''}`}
+          onClick={() => setActiveTab('order')}
+        >
+          Place Order
+        </button>
+        <button
+          className={`tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          Dashboard
+        </button>
+      </nav>
 
-            {showOrderForm && selectedItem && (
-              <OrderForm 
-                item={selectedItem}
-                onOrder={handleOrder}
-                onCancel={() => setShowOrderForm(false)}
-              />
-            )}
+      <main className="container">
+        {loading && activeTab === 'items' && <div className="loading">Loading items...</div>}
 
-            <div className="orders-section">
-              <h2>Recent Orders</h2>
-              <div className="orders-list">
-                {orders.length === 0 ? (
-                  <p className="empty-state">No orders yet</p>
-                ) : (
-                  orders.slice().reverse().slice(0, 5).map(order => (
-                    <div key={order.id} className="order-card">
-                      <div className="order-info">
-                        <h4>{order.itemName}</h4>
-                        <p>Qty: {order.quantity} | Total: ${order.totalPrice.toFixed(2)}</p>
-                        <p className="customer">by {order.customerName}</p>
-                      </div>
-                      <div className={`order-status status-${order.status}`}>
-                        {order.status}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
+        {activeTab === 'items' && !loading && (
+          <ItemList items={items} onAddItem={handleAddItem} />
+        )}
+
+        {activeTab === 'order' && (
+          <OrderForm items={items} onPlaceOrder={handlePlaceOrder} />
+        )}
+
+        {activeTab === 'dashboard' && (
+          <Dashboard orders={orders} />
         )}
       </main>
+
+      <footer className="footer">
+        <p>&copy; 2026 3D Print Shop. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
