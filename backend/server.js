@@ -10,17 +10,17 @@ app.use(express.json());
 
 // In-memory storage
 let items = [
-  { id: 1, name: 'Dragon Keychain', description: 'Cute mini dragon keychain', price: 8.99, image: '🐉', category: 'keychain' },
-  { id: 2, name: 'Star Keychain', description: 'Shiny star-shaped keychain', price: 7.99, image: '⭐', category: 'keychain' },
-  { id: 3, name: 'Heart Keychain', description: 'Love heart keychain', price: 7.99, image: '❤️', category: 'keychain' },
-  { id: 4, name: 'Skull Keychain', description: 'Cool skull keychain', price: 8.99, image: '💀', category: 'keychain' },
-  { id: 5, name: 'Cube Keychain', description: 'Geometric cube keychain', price: 9.99, image: '🎲', category: 'keychain' },
-  { id: 6, name: 'Moon Keychain', description: 'Crescent moon keychain', price: 8.49, image: '🌙', category: 'keychain' },
-  { id: 7, name: 'Flower Keychain', description: 'Pretty flower keychain', price: 7.49, image: '🌸', category: 'keychain' },
-  { id: 8, name: 'Lightning Keychain', description: 'Electric lightning bolt keychain', price: 8.99, image: '⚡', category: 'keychain' },
-  { id: 9, name: 'Brown Dog Keychain', description: 'Adorable brown dog keychain', price: 10.99, image: '🐕', category: 'keychain' },
-  { id: 10, name: 'Octopus Keychain', description: 'Blue octopus with googly eyes', price: 12.99, image: '🐙', category: 'keychain' },
-  { id: 11, name: 'Tire Keychain', description: 'Black rubber tire keychain', price: 9.49, image: '🛞', category: 'keychain' }
+  { id: 1, name: 'Dragon Keychain', description: 'Cute mini dragon keychain', price: 49, image: '🐉', category: 'keychain' },
+  { id: 2, name: 'Star Keychain', description: 'Shiny star-shaped keychain', price: 39, image: '⭐', category: 'keychain' },
+  { id: 3, name: 'Heart Keychain', description: 'Love heart keychain', price: 39, image: '❤️', category: 'keychain' },
+  { id: 4, name: 'Skull Keychain', description: 'Cool skull keychain', price: 49, image: '💀', category: 'keychain' },
+  { id: 5, name: 'Cube Keychain', description: 'Geometric cube keychain', price: 59, image: '🎲', category: 'keychain' },
+  { id: 6, name: 'Moon Keychain', description: 'Crescent moon keychain', price: 45, image: '🌙', category: 'keychain' },
+  { id: 7, name: 'Flower Keychain', description: 'Pretty flower keychain', price: 35, image: '🌸', category: 'keychain' },
+  { id: 8, name: 'Lightning Keychain', description: 'Electric lightning bolt keychain', price: 49, image: '⚡', category: 'keychain' },
+  { id: 9, name: 'Brown Dog Keychain', description: 'Adorable brown dog keychain', price: 59, image: '🐕', category: 'keychain' },
+  { id: 10, name: 'Octopus Keychain', description: 'Blue octopus with googly eyes', price: 79, image: '🐙', category: 'keychain' },
+  { id: 11, name: 'Tire Keychain', description: 'Black rubber tire keychain', price: 55, image: '🛞', category: 'keychain' }
 ];
 
 let orders = [];

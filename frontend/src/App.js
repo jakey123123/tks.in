@@ -119,7 +119,7 @@ function App() {
       <header className="header">
         <div className="header-content">
           <h1>🔑 KeyChain Store</h1>
-          <p>Premium 3D Printed Keychains</p>
+          <p>Premium 3D Printed Keychains - Best Deals Under ₹100</p>
         </div>
       </header>
 
@@ -130,7 +130,7 @@ function App() {
           className={`tab ${activeTab === 'shop' ? 'active' : ''}`}
           onClick={() => setActiveTab('shop')}
         >
-          Shop
+          🛍️ Shop
         </button>
         <button
           className={`tab ${activeTab === 'cart' ? 'active' : ''}`}
@@ -142,7 +142,7 @@ function App() {
           className={`tab ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
-          Orders
+          📦 Orders
         </button>
       </nav>
 
@@ -169,7 +169,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>&copy; 2026 KeyChain Store. All rights reserved.</p>
+        <p>&copy; 2026 KeyChain Store. Fast Delivery | Best Quality | Affordable Prices</p>
       </footer>
     </div>
   );

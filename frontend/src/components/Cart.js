@@ -38,14 +38,14 @@ function Cart({ cartItems, onUpdateQuantity, onRemove, onCheckout, onClear }) {
     <div className="cart-container">
       <div className="cart-content">
         <div className="cart-items">
-          <h2>Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h2>
+          <h2>🛒 Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h2>
           <div className="items-list">
             {cartItems.map(item => (
               <div key={item.id} className="cart-item">
                 <div className="item-image">{item.image}</div>
                 <div className="item-info">
                   <h3>{item.name}</h3>
-                  <p className="price">${item.price.toFixed(2)}</p>
+                  <p className="price">₹{item.price}</p>
                 </div>
                 <div className="quantity-control">
                   <button onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}>−</button>
@@ -57,7 +57,7 @@ function Cart({ cartItems, onUpdateQuantity, onRemove, onCheckout, onClear }) {
                   />
                   <button onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}>+</button>
                 </div>
-                <div className="item-total">${(item.price * item.quantity).toFixed(2)}</div>
+                <div className="item-total">₹{(item.price * item.quantity)}</div>
                 <button
                   className="remove-btn"
                   onClick={() => onRemove(item.id)}
@@ -74,7 +74,7 @@ function Cart({ cartItems, onUpdateQuantity, onRemove, onCheckout, onClear }) {
             <h3>Order Summary</h3>
             <div className="summary-row">
               <span>Subtotal:</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              <span>₹{totalPrice}</span>
             </div>
             <div className="summary-row">
               <span>Shipping:</span>
@@ -83,7 +83,7 @@ function Cart({ cartItems, onUpdateQuantity, onRemove, onCheckout, onClear }) {
             <div className="summary-divider"></div>
             <div className="summary-row total">
               <span>Total:</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              <span>₹{totalPrice}</span>
             </div>
           </div>
 
@@ -107,7 +107,7 @@ function Cart({ cartItems, onUpdateQuantity, onRemove, onCheckout, onClear }) {
               onClick={handleCheckout}
               disabled={isCheckingOut}
             >
-              {isCheckingOut ? 'Processing...' : 'Complete Order'}
+              {isCheckingOut ? 'Processing...' : '✅ Complete Order'}
             </button>
             <button
               className="clear-btn"

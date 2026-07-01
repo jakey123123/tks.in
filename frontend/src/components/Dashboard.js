@@ -24,7 +24,7 @@ function Dashboard({ orders }) {
 
   return (
     <div className="dashboard-container">
-      <h2>Your Orders</h2>
+      <h2>📦 Your Orders</h2>
 
       <div className="stats-grid">
         <div className="stat-card">
@@ -37,12 +37,12 @@ function Dashboard({ orders }) {
         </div>
         <div className="stat-card">
           <h3>Total Spent</h3>
-          <p className="stat-value">${totalRevenue.toFixed(2)}</p>
+          <p className="stat-value">₹{totalRevenue}</p>
         </div>
       </div>
 
       <div className="orders-section">
-        <h3>Order History</h3>
+        <h3>📋 Order History</h3>
         {orders.length === 0 ? (
           <div className="no-orders">
             <div className="no-orders-icon">📭</div>
@@ -69,13 +69,13 @@ function Dashboard({ orders }) {
                     <div key={item.itemId} className="order-item">
                       <span>{item.itemName}</span>
                       <span className="qty">x{item.quantity}</span>
-                      <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="item-price">₹{(item.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
                 <div className="order-footer">
                   <span>Customer: {order.customerName}</span>
-                  <span className="order-total">Total: ${order.totalPrice.toFixed(2)}</span>
+                  <span className="order-total">Total: ₹{order.totalPrice}</span>
                 </div>
               </div>
             ))}
