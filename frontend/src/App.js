@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import ItemList from './components/ItemList';
-import OrderForm from './components/OrderForm';
+import Shop from './components/Shop';
+import Cart from './components/Cart';
 import Dashboard from './components/Dashboard';
 
 function App() {
   const [items, setItems] = useState([]);
+  const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [activeTab, setActiveTab] = useState('items');
+  const [activeTab, setActiveTab] = useState('shop');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -17,7 +18,17 @@ function App() {
   useEffect(() => {
     fetchItems();
     fetchOrders();
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
   }, []);
+
+  // Save cart to localStorage
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
 
   const fetchItems = async () => {
     try {
@@ -46,80 +57,110 @@ function App() {
     }
   };
 
-  const handleAddItem = async (itemData) => {
-    try {
-      const response = await fetch(`${API_URL}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(itemData)
-      });
-      if (!response.ok) throw new Error('Failed to add item');
-      const newItem = await response.json();
-      setItems([...items, newItem]);
-      setError(null);
-    } catch (err) {
-      setError('Failed to add item: ' + err.message);
-      console.error(err);
+  const addToCart = (item) => {
+    const existingItem = cart.find(c => c.id === item.id);
+    if (existingItem) {
+      setCart(cart.map(c =>
+        c.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
+      ));
+    } else {
+      setCart([...cart, { ...item, quantity: 1 }]);
     }
   };
 
-  const handlePlaceOrder = async (orderData) => {
+  const removeFromCart = (itemId) => {
+    setCart(cart.filter(c => c.id !== itemId));
+  };
+
+  const updateCartQuantity = (itemId, quantity) => {
+    if (quantity <= 0) {
+      removeFromCart(itemId);
+    } else {
+      setCart(cart.map(c =>
+        c.id === itemId ? { ...c, quantity } : c
+      ));
+    }
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  const handleCheckout = async (customerName, customerEmail) => {
     try {
       const response = await fetch(`${API_URL}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({
+          cartItems: cart.map(item => ({ id: item.id, quantity: item.quantity })),
+          customerName,
+          customerEmail
+        })
       });
       if (!response.ok) throw new Error('Failed to place order');
       const newOrder = await response.json();
       setOrders([...orders, newOrder]);
       setError(null);
+      clearCart();
       alert('Order placed successfully! Order ID: ' + newOrder.id);
+      setActiveTab('dashboard');
+      return true;
     } catch (err) {
       setError('Failed to place order: ' + err.message);
       console.error(err);
+      return false;
     }
   };
+
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="App">
       <header className="header">
-        <h1>🖨️ 3D Print Shop</h1>
-        <p>Quality 3D printed items</p>
+        <div className="header-content">
+          <h1>🔑 KeyChain Store</h1>
+          <p>Premium 3D Printed Keychains</p>
+        </div>
       </header>
 
       {error && <div className="error-message">{error}</div>}
 
       <nav className="nav-tabs">
         <button
-          className={`tab ${activeTab === 'items' ? 'active' : ''}`}
-          onClick={() => setActiveTab('items')}
+          className={`tab ${activeTab === 'shop' ? 'active' : ''}`}
+          onClick={() => setActiveTab('shop')}
         >
-          Items
+          Shop
         </button>
         <button
-          className={`tab ${activeTab === 'order' ? 'active' : ''}`}
-          onClick={() => setActiveTab('order')}
+          className={`tab ${activeTab === 'cart' ? 'active' : ''}`}
+          onClick={() => setActiveTab('cart')}
         >
-          Place Order
+          🛒 Cart ({cartCount})
         </button>
         <button
           className={`tab ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
-          Dashboard
+          Orders
         </button>
       </nav>
 
       <main className="container">
-        {loading && activeTab === 'items' && <div className="loading">Loading items...</div>}
+        {loading && activeTab === 'shop' && <div className="loading">Loading items...</div>}
 
-        {activeTab === 'items' && !loading && (
-          <ItemList items={items} onAddItem={handleAddItem} />
+        {activeTab === 'shop' && !loading && (
+          <Shop items={items} onAddToCart={addToCart} />
         )}
 
-        {activeTab === 'order' && (
-          <OrderForm items={items} onPlaceOrder={handlePlaceOrder} />
+        {activeTab === 'cart' && (
+          <Cart
+            cartItems={cart}
+            onUpdateQuantity={updateCartQuantity}
+            onRemove={removeFromCart}
+            onCheckout={handleCheckout}
+            onClear={clearCart}
+          />
         )}
 
         {activeTab === 'dashboard' && (
@@ -128,7 +169,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>&copy; 2026 3D Print Shop. All rights reserved.</p>
+        <p>&copy; 2026 KeyChain Store. All rights reserved.</p>
       </footer>
     </div>
   );

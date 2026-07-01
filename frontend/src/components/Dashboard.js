@@ -18,12 +18,13 @@ function Dashboard({ orders }) {
   };
 
   const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-  const pendingOrders = orders.filter(o => o.status === 'pending').length;
-  const completedOrders = orders.filter(o => o.status === 'delivered').length;
+  const totalItems = orders.reduce((sum, order) => {
+    return sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
+  }, 0);
 
   return (
     <div className="dashboard-container">
-      <h2>Order Dashboard</h2>
+      <h2>Your Orders</h2>
 
       <div className="stats-grid">
         <div className="stat-card">
@@ -31,59 +32,54 @@ function Dashboard({ orders }) {
           <p className="stat-value">{orders.length}</p>
         </div>
         <div className="stat-card">
-          <h3>Total Revenue</h3>
+          <h3>Items Ordered</h3>
+          <p className="stat-value">{totalItems}</p>
+        </div>
+        <div className="stat-card">
+          <h3>Total Spent</h3>
           <p className="stat-value">${totalRevenue.toFixed(2)}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Pending</h3>
-          <p className="stat-value" style={{ color: '#f59e0b' }}>{pendingOrders}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Delivered</h3>
-          <p className="stat-value" style={{ color: '#10b981' }}>{completedOrders}</p>
         </div>
       </div>
 
-      <div className="orders-table-container">
-        <h3>Recent Orders</h3>
+      <div className="orders-section">
+        <h3>Order History</h3>
         {orders.length === 0 ? (
-          <p className="no-orders">No orders yet.</p>
+          <div className="no-orders">
+            <div className="no-orders-icon">📭</div>
+            <p>No orders yet. Start shopping!</p>
+          </div>
         ) : (
-          <table className="orders-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Item</th>
-                <th>Customer</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map(order => (
-                <tr key={order.id}>
-                  <td className="order-id">#{order.id}</td>
-                  <td>{order.itemName}</td>
-                  <td>{order.customerName}</td>
-                  <td className="quantity">{order.quantity}</td>
-                  <td className="price">${order.totalPrice.toFixed(2)}</td>
-                  <td>
-                    <span
-                      className="status-badge"
-                      style={{ backgroundColor: getStatusColor(order.status) }}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="date">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="orders-list">
+            {orders.map(order => (
+              <div key={order.id} className="order-card">
+                <div className="order-header">
+                  <div>
+                    <h4>Order #{order.id}</h4>
+                    <p className="order-date">{new Date(order.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <span
+                    className="status-badge"
+                    style={{ backgroundColor: getStatusColor(order.status) }}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+                <div className="order-items">
+                  {order.items.map(item => (
+                    <div key={item.itemId} className="order-item">
+                      <span>{item.itemName}</span>
+                      <span className="qty">x{item.quantity}</span>
+                      <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="order-footer">
+                  <span>Customer: {order.customerName}</span>
+                  <span className="order-total">Total: ${order.totalPrice.toFixed(2)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

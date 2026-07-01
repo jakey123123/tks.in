@@ -10,13 +10,18 @@ app.use(express.json());
 
 // In-memory storage
 let items = [
-  { id: 1, name: 'Mini Dragon', description: 'Cute mini dragon figurine', price: 15, image: 'dragon.jpg' },
-  { id: 2, name: 'Phone Stand', description: 'Desk phone stand', price: 10, image: 'phone-stand.jpg' },
-  { id: 3, name: 'Planter Pot', description: 'Small decorative planter', price: 12, image: 'planter.jpg' }
+  { id: 1, name: 'Dragon Keychain', description: 'Cute mini dragon keychain', price: 8.99, image: '🐉', category: 'keychain' },
+  { id: 2, name: 'Star Keychain', description: 'Shiny star-shaped keychain', price: 7.99, image: '⭐', category: 'keychain' },
+  { id: 3, name: 'Heart Keychain', description: 'Love heart keychain', price: 7.99, image: '❤️', category: 'keychain' },
+  { id: 4, name: 'Skull Keychain', description: 'Cool skull keychain', price: 8.99, image: '💀', category: 'keychain' },
+  { id: 5, name: 'Cube Keychain', description: 'Geometric cube keychain', price: 9.99, image: '🎲', category: 'keychain' },
+  { id: 6, name: 'Moon Keychain', description: 'Crescent moon keychain', price: 8.49, image: '🌙', category: 'keychain' },
+  { id: 7, name: 'Flower Keychain', description: 'Pretty flower keychain', price: 7.49, image: '🌸', category: 'keychain' },
+  { id: 8, name: 'Lightning Keychain', description: 'Electric lightning bolt keychain', price: 8.99, image: '⚡', category: 'keychain' }
 ];
 
 let orders = [];
-let itemIdCounter = 4;
+let itemIdCounter = 9;
 let orderIdCounter = 1;
 
 // Routes
@@ -24,6 +29,13 @@ let orderIdCounter = 1;
 // Get all items
 app.get('/api/items', (req, res) => {
   res.json(items);
+});
+
+// Get items by category
+app.get('/api/items/category/:category', (req, res) => {
+  const category = req.params.category;
+  const filteredItems = items.filter(i => i.category === category);
+  res.json(filteredItems);
 });
 
 // Get single item
@@ -35,7 +47,7 @@ app.get('/api/items/:id', (req, res) => {
 
 // Add new item
 app.post('/api/items', (req, res) => {
-  const { name, description, price, image } = req.body;
+  const { name, description, price, image, category } = req.body;
   
   if (!name || !price) {
     return res.status(400).json({ message: 'Name and price required' });
@@ -46,7 +58,8 @@ app.post('/api/items', (req, res) => {
     name,
     description: description || '',
     price,
-    image: image || 'default.jpg'
+    image: image || '📦',
+    category: category || 'other'
   };
 
   items.push(newItem);
@@ -58,23 +71,36 @@ app.get('/api/orders', (req, res) => {
   res.json(orders);
 });
 
-// Create order
+// Create order from cart
 app.post('/api/orders', (req, res) => {
-  const { itemId, quantity, customerName, customerEmail } = req.body;
+  const { cartItems, customerName, customerEmail } = req.body;
 
-  if (!itemId || !quantity || !customerName) {
+  if (!cartItems || cartItems.length === 0 || !customerName) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
-  const item = items.find(i => i.id === parseInt(itemId));
-  if (!item) return res.status(404).json({ message: 'Item not found' });
+  let totalPrice = 0;
+  const orderItems = [];
+
+  // Validate all items exist and calculate total
+  for (let cartItem of cartItems) {
+    const item = items.find(i => i.id === cartItem.id);
+    if (!item) {
+      return res.status(404).json({ message: `Item ${cartItem.id} not found` });
+    }
+    totalPrice += item.price * cartItem.quantity;
+    orderItems.push({
+      itemId: item.id,
+      itemName: item.name,
+      quantity: cartItem.quantity,
+      price: item.price
+    });
+  }
 
   const order = {
     id: orderIdCounter++,
-    itemId: parseInt(itemId),
-    itemName: item.name,
-    quantity: parseInt(quantity),
-    totalPrice: item.price * quantity,
+    items: orderItems,
+    totalPrice,
     customerName,
     customerEmail: customerEmail || 'no-email@example.com',
     status: 'pending',
